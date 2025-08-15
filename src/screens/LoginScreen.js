@@ -10,13 +10,17 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     setLoading(true);
     try {
-  const response = await axios.post('http://192.168.1.128:8000/api/alumno/login', {
+      // Usa el endpoint correcto para alumnos
+      const response = await axios.post('http://192.168.1.128:8000/api/alumno/login', {
         email,
         password,
       });
-      // Guardar token y navegar
+
+      // Si llega aquí, el backend ya validó que es alumno
       navigation.replace('Dashboard', { user: response.data.user, token: response.data.token });
+
     } catch (error) {
+      console.log('Error completo:', error.response?.data); // Para debug
       Alert.alert('Error', 'Credenciales inválidas o no eres alumno');
     } finally {
       setLoading(false);
@@ -25,7 +29,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login Alumno</Text>
+      <Text style={styles.title}>EduLink Estudiantes</Text>
       <TextInput
         style={styles.input}
         placeholder="Correo institucional"
@@ -47,7 +51,14 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 10, marginBottom: 15 },
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f5f5f5' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#333' },
+  input: { 
+    borderWidth: 1, 
+    borderColor: '#ddd', 
+    borderRadius: 8, 
+    padding: 15, 
+    marginBottom: 15,
+    backgroundColor: '#fff'
+  },
 });
