@@ -84,7 +84,7 @@ export default function AsistenciasScreen({ route }) {
               {item.docente && (
                 <View style={styles.detailRow}>
                   <Ionicons name="person-outline" size={16} color={Colors.muted} />
-                  <Text style={styles.detailText}>{item.docente}</Text>
+                  <Text style={styles.detailText}>Profesor: {item.docente}</Text>
                 </View>
               )}
               

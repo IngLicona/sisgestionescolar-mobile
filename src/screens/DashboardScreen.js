@@ -1,12 +1,32 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { Colors, Spacing, FontSizes } from '../constants/Colors';
 
 export default function DashboardScreen({ navigation, route }) {
   const { user, token } = route.params || {};
+  const [estadisticas, setEstadisticas] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    cargarEstadisticas();
+  }, []);
+
+  const cargarEstadisticas = async () => {
+    try {
+      const response = await axios.get('http://192.168.1.128:8000/api/alumno/estadisticas', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setEstadisticas(response.data);
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
   
   const menuOptions = [
     {
@@ -51,14 +71,26 @@ export default function DashboardScreen({ navigation, route }) {
           <Card style={styles.statCard}>
             <View style={styles.statContent}>
               <Ionicons name="calendar" size={24} color={Colors.info} />
-              <Text style={styles.statNumber}>--</Text>
+              {loadingStats ? (
+                <ActivityIndicator color={Colors.info} size="small" style={{ marginTop: 8 }} />
+              ) : (
+                <Text style={styles.statNumber}>
+                  {estadisticas?.porcentaje_asistencia ? `${estadisticas.porcentaje_asistencia}%` : '0%'}
+                </Text>
+              )}
               <Text style={styles.statLabel}>Asistencias</Text>
             </View>
           </Card>
           <Card style={styles.statCard}>
             <View style={styles.statContent}>
               <Ionicons name="trophy" size={24} color={Colors.warning} />
-              <Text style={styles.statNumber}>--</Text>
+              {loadingStats ? (
+                <ActivityIndicator color={Colors.warning} size="small" style={{ marginTop: 8 }} />
+              ) : (
+                <Text style={styles.statNumber}>
+                  {estadisticas?.promedio_general ? estadisticas.promedio_general.toFixed(1) : '0.0'}
+                </Text>
+              )}
               <Text style={styles.statLabel}>Promedio</Text>
             </View>
           </Card>

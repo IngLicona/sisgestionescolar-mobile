@@ -88,6 +88,13 @@ export default function CalificacionesScreen({ route }) {
                 <Text style={styles.detailText}>{item.periodo}</Text>
               </View>
               
+              {item.docente && (
+                <View style={styles.detailRow}>
+                  <Ionicons name="person-outline" size={16} color={Colors.muted} />
+                  <Text style={styles.detailText}>Profesor: {item.docente}</Text>
+                </View>
+              )}
+              
               {item.descripcion && (
                 <View style={styles.detailRow}>
                   <Ionicons name="document-text-outline" size={16} color={Colors.muted} />
