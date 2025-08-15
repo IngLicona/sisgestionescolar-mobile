@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import Button from '../components/Button';
+import Card from '../components/Card';
+import { Colors, Spacing, FontSizes, Shadows } from '../constants/Colors';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -28,37 +33,152 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>EduLink Estudiantes</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Correo institucional"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Button title={loading ? 'Cargando...' : 'Ingresar'} onPress={handleLogin} disabled={loading} />
-    </View>
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <LinearGradient
+        colors={Colors.primaryGradient}
+        style={styles.gradient}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.logoContainer}>
+              <Ionicons name="school" size={60} color={Colors.white} />
+            </View>
+            <Text style={styles.title}>EduLink Estudiantes</Text>
+            <Text style={styles.subtitle}>Accede a tu información académica</Text>
+          </View>
+
+          {/* Form Card */}
+          <Card style={styles.formCard}>
+            <View style={styles.inputContainer}>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="mail" size={20} color={Colors.muted} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Correo institucional"
+                  placeholderTextColor={Colors.muted}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <View style={styles.inputWrapper}>
+                <Ionicons name="lock-closed" size={20} color={Colors.muted} style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Contraseña"
+                  placeholderTextColor={Colors.muted}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                  autoComplete="password"
+                />
+              </View>
+            </View>
+
+            <Button 
+              title={loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              onPress={handleLogin}
+              disabled={loading}
+              variant="primary"
+              size="large"
+              icon="log-in"
+              style={styles.loginButton}
+            />
+          </Card>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              ¿Problemas para acceder?{'\n'}
+              Contacta a tu administrador
+            </Text>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f5f5f5' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#333' },
-  input: { 
-    borderWidth: 1, 
-    borderColor: '#ddd', 
-    borderRadius: 8, 
-    padding: 15, 
-    marginBottom: 15,
-    backgroundColor: '#fff'
+  container: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: Spacing.lg,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
+  logoContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  title: {
+    fontSize: FontSizes.header,
+    fontWeight: 'bold',
+    color: Colors.white,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+  },
+  subtitle: {
+    fontSize: FontSizes.medium,
+    color: 'rgba(255,255,255,0.9)',
+    textAlign: 'center',
+  },
+  formCard: {
+    marginBottom: Spacing.xl,
+  },
+  inputContainer: {
+    marginBottom: Spacing.lg,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light,
+    borderRadius: 8,
+    paddingHorizontal: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  inputIcon: {
+    marginRight: Spacing.md,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    fontSize: FontSizes.medium,
+    color: Colors.dark,
+  },
+  loginButton: {
+    marginTop: Spacing.md,
+  },
+  footer: {
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: FontSizes.small,
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });

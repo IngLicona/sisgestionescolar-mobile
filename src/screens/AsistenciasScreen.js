@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import Card from '../components/Card';
+import { Colors, Spacing, FontSizes } from '../constants/Colors';
 
 export default function AsistenciasScreen({ route }) {
   const { token } = route.params;
@@ -16,35 +19,194 @@ export default function AsistenciasScreen({ route }) {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
+  const getEstadoColor = (estado) => {
+    switch (estado?.toLowerCase()) {
+      case 'presente': return Colors.presente;
+      case 'ausente': return Colors.ausente;
+      case 'tarde': return Colors.tarde;
+      case 'justificado': return Colors.justificado;
+      default: return Colors.muted;
+    }
+  };
+
+  const getEstadoIcon = (estado) => {
+    switch (estado?.toLowerCase()) {
+      case 'presente': return 'checkmark-circle';
+      case 'ausente': return 'close-circle';
+      case 'tarde': return 'time';
+      case 'justificado': return 'document-text';
+      default: return 'help-circle';
+    }
+  };
+
+  if (loading) return (
+    <View style={styles.centerContainer}>
+      <ActivityIndicator size="large" color={Colors.primary} />
+      <Text style={styles.loadingText}>Cargando asistencias...</Text>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Asistencias</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Mis Asistencias</Text>
+        <Text style={styles.subtitle}>Historial de asistencia a clases</Text>
+      </View>
+      
       <FlatList
         data={asistencias}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.materia}>Materia: {item.materia}</Text>
-            <Text>Fecha: {item.fecha_formateada}</Text>
-            <Text style={[styles.estado, { color: item.estado === 'presente' ? 'green' : item.estado === 'ausente' ? 'red' : 'orange' }]}>
-              Estado: {item.estado.toUpperCase()}
-            </Text>
-            {item.docente && <Text>Docente: {item.docente}</Text>}
-            {item.observaciones && <Text>Observaciones: {item.observaciones}</Text>}
-          </View>
+          <Card style={styles.asistenciaCard}>
+            <View style={styles.asistenciaHeader}>
+              <View style={styles.materiaContainer}>
+                <Ionicons name="book-outline" size={20} color={Colors.primary} />
+                <Text style={styles.materia}>{item.materia}</Text>
+              </View>
+              <View style={[styles.estadoBadge, { backgroundColor: getEstadoColor(item.estado) + '20' }]}>
+                <Ionicons 
+                  name={getEstadoIcon(item.estado)} 
+                  size={16} 
+                  color={getEstadoColor(item.estado)} 
+                />
+                <Text style={[styles.estadoText, { color: getEstadoColor(item.estado) }]}>
+                  {item.estado?.toUpperCase()}
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.asistenciaDetails}>
+              <View style={styles.detailRow}>
+                <Ionicons name="calendar-outline" size={16} color={Colors.muted} />
+                <Text style={styles.detailText}>{item.fecha_formateada}</Text>
+              </View>
+              
+              {item.docente && (
+                <View style={styles.detailRow}>
+                  <Ionicons name="person-outline" size={16} color={Colors.muted} />
+                  <Text style={styles.detailText}>{item.docente}</Text>
+                </View>
+              )}
+              
+              {item.observaciones && (
+                <View style={styles.detailRow}>
+                  <Ionicons name="chatbubble-outline" size={16} color={Colors.muted} />
+                  <Text style={styles.detailText}>{item.observaciones}</Text>
+                </View>
+              )}
+            </View>
+          </Card>
         )}
-        ListEmptyComponent={<Text>No hay asistencias registradas.</Text>}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Ionicons name="calendar-outline" size={60} color={Colors.muted} />
+            <Text style={styles.emptyTitle}>Sin registros</Text>
+            <Text style={styles.emptyText}>No hay asistencias registradas aún</Text>
+          </View>
+        }
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
-  item: { padding: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginBottom: 10 },
-  materia: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
-  estado: { fontSize: 14, fontWeight: 'bold' },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: Spacing.md,
+    fontSize: FontSizes.medium,
+    color: Colors.muted,
+  },
+  header: {
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  title: {
+    fontSize: FontSizes.title,
+    fontWeight: 'bold',
+    color: Colors.dark,
+  },
+  subtitle: {
+    fontSize: FontSizes.medium,
+    color: Colors.muted,
+    marginTop: Spacing.xs,
+  },
+  listContainer: {
+    padding: Spacing.lg,
+  },
+  asistenciaCard: {
+    marginBottom: Spacing.md,
+  },
+  asistenciaHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.md,
+  },
+  materiaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: Spacing.md,
+  },
+  materia: {
+    fontSize: FontSizes.large,
+    fontWeight: '600',
+    color: Colors.dark,
+    marginLeft: Spacing.sm,
+    flex: 1,
+  },
+  estadoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: 12,
+  },
+  estadoText: {
+    fontSize: FontSizes.small,
+    fontWeight: '600',
+    marginLeft: Spacing.xs,
+  },
+  asistenciaDetails: {
+    gap: Spacing.sm,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  detailText: {
+    fontSize: FontSizes.medium,
+    color: Colors.dark,
+    marginLeft: Spacing.sm,
+    flex: 1,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.xxl,
+  },
+  emptyTitle: {
+    fontSize: FontSizes.xlarge,
+    fontWeight: 'bold',
+    color: Colors.muted,
+    marginTop: Spacing.lg,
+  },
+  emptyText: {
+    fontSize: FontSizes.medium,
+    color: Colors.muted,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+  },
 });
