@@ -26,9 +26,13 @@ export default function AsistenciasScreen({ route }) {
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text>Materia: {item.materia}</Text>
-            <Text>Fecha: {item.fecha}</Text>
-            <Text>Estado: {item.estado}</Text>
+            <Text style={styles.materia}>Materia: {item.materia}</Text>
+            <Text>Fecha: {item.fecha_formateada}</Text>
+            <Text style={[styles.estado, { color: item.estado === 'presente' ? 'green' : item.estado === 'ausente' ? 'red' : 'orange' }]}>
+              Estado: {item.estado.toUpperCase()}
+            </Text>
+            {item.docente && <Text>Docente: {item.docente}</Text>}
+            {item.observaciones && <Text>Observaciones: {item.observaciones}</Text>}
           </View>
         )}
         ListEmptyComponent={<Text>No hay asistencias registradas.</Text>}
@@ -41,4 +45,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
   item: { padding: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginBottom: 10 },
+  materia: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
+  estado: { fontSize: 14, fontWeight: 'bold' },
 });

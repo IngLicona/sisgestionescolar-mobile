@@ -26,9 +26,12 @@ export default function CalificacionesScreen({ route }) {
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <Text>Materia: {item.materia}</Text>
-            <Text>Calificación: {item.calificacion}</Text>
-            <Text>Periodo: {item.periodo}</Text>
+            <Text style={styles.materia}>Materia: {item.materia}</Text>
+            <Text style={styles.nota}>Nota: {item.nota} ({item.calificacion_literal})</Text>
+            <Text>Tipo: {item.tipo}</Text>
+            <Text>Período: {item.periodo}</Text>
+            {item.descripcion && <Text>Descripción: {item.descripcion}</Text>}
+            {item.fecha && <Text>Fecha: {item.fecha}</Text>}
           </View>
         )}
         ListEmptyComponent={<Text>No hay calificaciones registradas.</Text>}
@@ -41,4 +44,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
   item: { padding: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, marginBottom: 10 },
+  materia: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
+  nota: { fontSize: 14, fontWeight: 'bold', color: '#007BFF' },
 });
